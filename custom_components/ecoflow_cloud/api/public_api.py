@@ -43,19 +43,13 @@ class EcoflowPublicApiClient(EcoflowApiClient):
         response = await self.call_api("/device/list")
         _LOGGER.info(f"Received devices: \n {response}")
         result = list()
+        from ..devices.product_names import infer_public_product_name
+        from ..devices.registry import device_by_product
+
         for device in response["data"]:
             _LOGGER.debug(str(device))
             sn = device["sn"]
-            product_name = device.get("productName", "undefined")
-            if product_name == "undefined":
-                from ..devices.registry import device_by_product
-
-                device_list = list(device_by_product.keys())
-                device_list.sort(key=len, reverse=True)
-                for devicetype in device_list:
-                    if "deviceName" in device and device["deviceName"].lower().startswith(devicetype.lower()):
-                        product_name = devicetype
-                        break
+            product_name = infer_public_product_name(device, device_by_product.keys())
             device_name = device.get("deviceName", f"{product_name}-{sn}")
             status = int(device["online"])
             result.append(self._create_device_info(sn, device_name, product_name, status))

@@ -10,6 +10,7 @@ from homeassistant.util import utcnow
 
 from custom_components.ecoflow_cloud.api import EcoflowApiClient
 from custom_components.ecoflow_cloud.devices import BaseInternalDevice, const
+from custom_components.ecoflow_cloud.devices.internal.stream_ac_manual_fields import decode_stream_ac_manual_fields
 from custom_components.ecoflow_cloud.sensor import (
     CapacitySensorEntity,
     CumulativeCapacitySensorEntity,
@@ -346,6 +347,8 @@ class StreamAC(BaseInternalDevice):
                     # paquet Champ_cmd50_3
                     if packet.msg.cmd_id > 0:
                         self._parsedata(packet, stream_ac2.StreamACChamp_cmd50_3(), raw)
+
+                    decode_stream_ac_manual_fields(packet.msg.pdata, raw["params"])
 
                     _LOGGER.info("Found %u fields", len(raw["params"]))
 

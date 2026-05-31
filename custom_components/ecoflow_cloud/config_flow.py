@@ -71,7 +71,10 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         self.new_options = deepcopy(dict(config_entry.options))
 
     def set_device_list(self, device_list: list[EcoflowDeviceInfo]) -> None:
+        from .devices.registry import canonical_product_name
+
         for device in device_list:
+            device.device_type = canonical_product_name(device.device_type)
             self.cloud_devices[f"{device.name} ({device.device_type})"] = device
 
     def set_local_device_list(self, devices: list[DeviceData]) -> None:
@@ -383,15 +386,16 @@ class EcoflowConfigFlow(ConfigFlow, domain=ECOFLOW_DOMAIN):
         return await self.async_step_confirm_cloud_device()
 
     async def async_step_confirm_cloud_device(self, user_input: dict[str, Any] | None = None):
-        from .devices.registry import device_by_product
+        from .devices.registry import canonical_product_name, device_by_product
 
         if not user_input:
             device_list = list(device_by_product.keys())
+            default_type = canonical_product_name(self.cloud_device.device_type)
             return self.async_show_form(
                 step_id="confirm_cloud_device",
                 data_schema=vol.Schema(
                     {
-                        vol.Required(CONF_DEVICE_TYPE, default=self.cloud_device.device_type): selector.SelectSelector(
+                        vol.Required(CONF_DEVICE_TYPE, default=default_type): selector.SelectSelector(
                             selector.SelectSelectorConfig(
                                 options=device_list,
                                 mode=selector.SelectSelectorMode.DROPDOWN,

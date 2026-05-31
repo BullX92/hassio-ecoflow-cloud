@@ -78,8 +78,10 @@ devices: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[BaseDevice]]
         "SMART_METER": internal_smart_meter.SmartMeter,
         "SMART_PLUG": internal_smart_plug.SmartPlug,
         "STREAM_AC": internal_stream_ac.StreamAC,
+        "STREAM_AC_PRO": internal_stream_ac.StreamAC,
         "STREAM_PRO": internal_stream_ac.StreamAC,
         "STREAM_ULTRA": internal_stream_ac.StreamAC,
+        "STREAM_ULTRA_X": internal_stream_ac.StreamAC,
         "DIAGNOSTIC": DiagnosticDevice,
     }
 )
@@ -102,8 +104,10 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[Ba
         "Power Kits": public_powerkit.PowerKit,
         "Smart Meter": public_smart_meter.SmartMeter,
         "Stream AC": public_stream_ac.StreamAC,
+        "Stream AC Pro": public_stream_ac.StreamAC,
         "Stream PRO": public_stream_ac.StreamAC,
         "Stream Ultra": public_stream_ac.StreamAC,
+        "Stream Ultra X": public_stream_ac.StreamAC,
         "Stream Microinverter": public_stream_microinverter.StreamMicroinveter,
         "Smart Home Panel": public_smart_home_panel.SmartHomePanel,
         "Smart Home Panel 2": public_smart_home_panel_2.SmartHomePanel2,
@@ -113,3 +117,9 @@ device_by_product: OrderedDict[str, Type[BaseDevice]] = OrderedDict[str, Type[Ba
 )
 
 device_support_sub_devices = ["Power Kits"]
+
+
+def canonical_product_name(product_name: str) -> str:
+    from custom_components.ecoflow_cloud.devices.product_names import canonical_product_name as _canonical_product_name
+
+    return _canonical_product_name(product_name, device_by_product.keys())
